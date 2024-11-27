@@ -1,0 +1,14 @@
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
+**/appsettings.json
+
+# Build results
+.vs/
+
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
