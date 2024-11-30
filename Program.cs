@@ -1,3 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using APISocMed.Custom;
+using APISocMed.Models;
+
+
 
 namespace APISocMed
 {
@@ -14,6 +22,42 @@ namespace APISocMed
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<SocMedBdContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSQL"));
+            });
+
+            builder.Services.AddSingleton<utilities>();
+
+            builder.Services.AddAuthentication(config =>
+            {
+                config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(config =>
+            {
+                config.RequireHttpsMetadata = false;
+                config.SaveToken = true;
+                config.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey
+                    (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]!))
+                };
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("NewPolicy", app =>
+                {
+                    app.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -25,8 +69,10 @@ namespace APISocMed
 
             app.UseHttpsRedirection();
 
+
             app.UseAuthorization();
 
+            app.UseAuthentication();
 
             app.MapControllers();
 

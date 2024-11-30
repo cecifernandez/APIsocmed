@@ -19,13 +19,15 @@ public partial class SocMedBdContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=LAPTOP-84N4LL63\\SQLEXPRESS;Database=SocMedBD;Integrated Security=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.PostId).HasName("PK__Posts__DD0C739A5C8A5BFB");
+            entity.HasKey(e => e.PostId).HasName("PK__Posts__DD0C739A08A934E6");
 
             entity.Property(e => e.PostId).HasColumnName("postId");
             entity.Property(e => e.Content).HasColumnName("content");
@@ -38,20 +40,20 @@ public partial class SocMedBdContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Posts)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Posts__userId__3C69FB99");
+                .HasConstraintName("FK__Posts__userId__440B1D61");
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CFF91C07E0E");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__CB9A1CFFEA5129DE");
 
-            entity.HasIndex(e => e.UserName, "UQ__Users__66DCF95CC95BAD3B").IsUnique();
+            entity.HasIndex(e => e.UserName, "UQ__Users__66DCF95CCB4DF8BB").IsUnique();
 
-            entity.HasIndex(e => e.UserEmail, "UQ__Users__D54ADF55F1583315").IsUnique();
+            entity.HasIndex(e => e.UserEmail, "UQ__Users__D54ADF55BB7EA918").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("userId");
             entity.Property(e => e.PasswordHash)
-                .HasMaxLength(25)
+                .HasMaxLength(100)
                 .HasColumnName("password_hash");
             entity.Property(e => e.UserEmail)
                 .HasMaxLength(50)
