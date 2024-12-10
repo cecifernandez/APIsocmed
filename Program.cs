@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using APISocMed.Custom;
-using APISocMed.Models;
+using APISocMed.DomainServices;
+using APISocMed.Data;
+using APISocMed.Interfaces;
+using APISocMed.Repositories;
 
 
 
@@ -27,7 +29,8 @@ namespace APISocMed
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSQL"));
             });
 
-            builder.Services.AddSingleton<utilities>();
+            builder.Services.AddScoped<IAccessRepository, AccessRepository>();
+            builder.Services.AddSingleton<AuthService>();
 
             builder.Services.AddAuthentication(config =>
             {

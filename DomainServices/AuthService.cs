@@ -5,14 +5,14 @@ using System.Security.Cryptography;
 using System.Text;
 using APISocMed.Models;
 
-namespace APISocMed.Custom
+namespace APISocMed.DomainServices
 {
-    public class utilities
+    public class AuthService
     {
         private readonly IConfiguration _configuration;
         
         //access appsettings.json
-        public utilities(IConfiguration configuration)
+        public AuthService(IConfiguration configuration)
         {
             _configuration = configuration;
         }

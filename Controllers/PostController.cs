@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APISocMed.Custom;
-using APISocMed.Models;
+using APISocMed.DomainServices;
 using APISocMed.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using APISocMed.Data;
 
 
 namespace APISocMed.Controllers
