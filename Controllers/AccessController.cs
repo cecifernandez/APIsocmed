@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APISocMed.Custom;
+using APISocMed.DomainServices;
 using APISocMed.Models;
 using APISocMed.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using APISocMed.Data;
+using APISocMed.Interfaces;
 
 
 namespace APISocMed.Controllers
@@ -14,12 +16,12 @@ namespace APISocMed.Controllers
     [ApiController]
     public class AccessController : ControllerBase
     {
-        private readonly SocMedBdContext _socMedBdContext;
-        private readonly utilities _utilities;
-        public AccessController(SocMedBdContext socMedBdContext, utilities utilities)
+        private readonly IAccessRepository _accessRepository;
+        private readonly AuthService _authService;
+        public AccessController(IAccessRepository accesRepository, AuthService authService)
         {
-            _socMedBdContext = socMedBdContext;
-            _utilities = utilities;
+            _accessRepository = accesRepository;
+            _authService = authService;
         }
 
         [HttpPost]
@@ -30,32 +32,31 @@ namespace APISocMed.Controllers
             {
                 UserName = userDTO.username,
                 UserEmail = userDTO.email,
-                PasswordHash = _utilities.encryptSHA256(userDTO.password) 
+                PasswordHash = _authService.encryptSHA256(userDTO.password) 
             };
 
-            await _socMedBdContext.Users.AddAsync(userModel);
-            await _socMedBdContext.SaveChangesAsync();
+            bool isSuccess = await _accessRepository.RegisterAsync(userModel);
 
-            if (userModel.UserId != 0)
-                return StatusCode(StatusCodes.Status200OK, new {isSuccess = true});
+            if (isSuccess)
+                return StatusCode(StatusCodes.Status200OK, new { isSuccess = true });
             else
-                return StatusCode(StatusCodes.Status200OK, new { isSuccess = false });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { isSuccess = false });
         }
 
         [HttpPost]
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            var userExists = await _socMedBdContext.Users
-                             .Where(u =>
-                                u.UserEmail == loginDTO.email &&
-                                u.PasswordHash == _utilities.encryptSHA256(loginDTO.password) 
-                             ).FirstOrDefaultAsync();
+            var passwordHash = _authService.encryptSHA256(loginDTO.password);
+            var user = await _accessRepository.AuthenticateUserAsync(loginDTO.email, passwordHash);
 
-            if(userExists == null)
+            if (user == null)
+            {
                 return StatusCode(StatusCodes.Status200OK, new { isSuccess = false, token = "" });
-            else
-                return StatusCode(StatusCodes.Status200OK, new { isSuccess = true, token = _utilities.getJWT(userExists) });
+            }
+
+            var token = _authService.getJWT(user);
+            return StatusCode(StatusCodes.Status200OK, new { isSuccess = true, token });
         }
     }
 }
