@@ -32,6 +32,8 @@ namespace APISocMed
             builder.Services.AddScoped<IAccessRepository, AccessRepository>();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddSingleton<SpotifyService>();
+
 
             builder.Services.AddAuthentication(config =>
             {
