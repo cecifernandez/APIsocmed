@@ -2,25 +2,31 @@
 using System.Collections.Generic;
 using APISocMed.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
 
 namespace APISocMed.Data;
 
-public partial class SocMedBdContext : DbContext
+public partial class SocMedBdContext: DbContext
 {
-    public SocMedBdContext()
-    {
-    }
 
-    public SocMedBdContext(DbContextOptions<SocMedBdContext> options)
+    private readonly IConfiguration _configuration;
+    public SocMedBdContext(DbContextOptions<SocMedBdContext> options, IConfiguration configuration)
         : base(options)
     {
+        _configuration = configuration;
     }
-
     public virtual DbSet<Post> Posts { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+    public virtual DbSet<Follower> Followers { get; set; }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+    {
+        optionsBuilder.UseSqlServer(_configuration.GetConnectionString("ConnectionSQL"));
+    }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -63,6 +69,21 @@ public partial class SocMedBdContext : DbContext
                 .HasMaxLength(15)
                 .HasColumnName("userName");
         });
+
+        modelBuilder.Entity<Follower>()
+            .HasKey(f => new { f.FollowerId, f.FollowedId }); 
+
+        modelBuilder.Entity<Follower>()
+            .HasOne(f => f.FollowerUser)
+            .WithMany(u => u.Followers)
+            .HasForeignKey(f => f.FollowerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Follower>()
+            .HasOne(f => f.FollowedUser)
+            .WithMany(u => u.FollowedBy)
+            .HasForeignKey(f => f.FollowedId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         OnModelCreatingPartial(modelBuilder);
     }

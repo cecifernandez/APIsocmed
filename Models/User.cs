@@ -14,4 +14,6 @@ public partial class User
     public string PasswordHash { get; set; } = null!;
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
+    public ICollection<Follower> Followers { get; set; } 
+    public ICollection<Follower> FollowedBy { get; set; }
 }
