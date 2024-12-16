@@ -6,7 +6,7 @@ using APISocMed.DomainServices;
 using APISocMed.Data;
 using APISocMed.Interfaces;
 using APISocMed.Repositories;
-
+using Microsoft.EntityFrameworkCore.Design;
 
 
 namespace APISocMed
@@ -29,11 +29,13 @@ namespace APISocMed
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionSQL"));
             });
 
-            builder.Services.AddScoped<IAccessRepository, AccessRepository>();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<SpotifyService>();
 
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.AddAuthentication(config =>
             {

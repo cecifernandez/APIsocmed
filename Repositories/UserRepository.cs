@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APISocMed.Repositories
 {
-    public class AccessRepository : IAccessRepository
+    public class UserRepository : IUserRepository
     {
         private readonly SocMedBdContext _socMedBdContext;
         private readonly AuthService _authService;
-        public AccessRepository(SocMedBdContext socMedBdContext, AuthService authService)
+        public UserRepository(SocMedBdContext socMedBdContext, AuthService authService)
         {
             _socMedBdContext = socMedBdContext;
             _authService = authService;

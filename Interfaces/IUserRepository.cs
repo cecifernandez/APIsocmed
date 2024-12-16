@@ -2,7 +2,7 @@
 
 namespace APISocMed.Interfaces
 {
-    public interface IAccessRepository
+    public interface IUserRepository
     {
         Task<bool> RegisterAsync(User user);
         Task<User?> AuthenticateUserAsync(string email, string passwordHash);
