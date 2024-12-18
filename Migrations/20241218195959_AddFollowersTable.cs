@@ -25,13 +25,13 @@ namespace APISocMed.Migrations
                         column: x => x.FollowedId,
                         principalTable: "Users",
                         principalColumn: "userId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Followers_Users_FollowerId",
                         column: x => x.FollowerId,
                         principalTable: "Users",
                         principalColumn: "userId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(

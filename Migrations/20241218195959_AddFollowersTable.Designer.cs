@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APISocMed.Migrations
 {
     [DbContext(typeof(SocMedBdContext))]
-    [Migration("20241214172734_AddFollowersTable")]
+    [Migration("20241218195959_AddFollowersTable")]
     partial class AddFollowersTable
     {
         /// <inheritdoc />
