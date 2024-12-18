@@ -11,5 +11,8 @@ namespace APISocMed.Interfaces
 
         Task<IEnumerable<User>> GetFollowerUsersAsync(int userId);
 
+        Task FollowUsersAsync(int followerId, int followedId);
+        Task UnfollowUsersAsync(int followerId, int followedId);
+
     }
 }
