@@ -22,7 +22,7 @@ public partial class SocMedBdContext: DbContext
 
     public virtual DbSet<Follower> Followers { get; set; }
 
-
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
     {
         optionsBuilder.UseSqlServer(_configuration.GetConnectionString("ConnectionSQL"));
@@ -84,6 +84,11 @@ public partial class SocMedBdContext: DbContext
             .WithMany(u => u.FollowedBy)
             .HasForeignKey(f => f.FollowedId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RefreshToken>()
+           .HasOne(rt => rt.User)
+           .WithMany(u => u.RefreshTokens)
+           .HasForeignKey(rt => rt.UserId);
 
         OnModelCreatingPartial(modelBuilder);
     }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using APISocMed.Data;
 using APISocMed.Interfaces;
 using AutoMapper;
+using APISocMed.Repositories;
 
 
 namespace APISocMed.Controllers
@@ -20,12 +21,15 @@ namespace APISocMed.Controllers
         private readonly IUserRepository _userRepository;
         private readonly AuthService _authService;
         private readonly IMapper _mapper;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AccessController(IUserRepository accesRepository, AuthService authService, IMapper mapper)
+
+        public AccessController(IUserRepository accesRepository, AuthService authService, IMapper mapper, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = accesRepository;
             _authService = authService;
             _mapper = mapper;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         [HttpPost]
@@ -57,6 +61,40 @@ namespace APISocMed.Controllers
 
             var token = _authService.getJWT(user);
             return StatusCode(StatusCodes.Status200OK, new { isSuccess = true, token });
+        }
+
+        [HttpPost]
+        [Route("RefreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            var tokenEntity = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+
+            if (tokenEntity == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { isSuccess = false, message = "Invalid or expired refresh token" });
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(tokenEntity.UserId);
+
+            if (user == null)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new { isSuccess = false, message = "User not found" });
+            }
+
+            var newAccessToken = _authService.getJWT(user);
+
+            tokenEntity.IsUsed = true;
+            await _refreshTokenRepository.UpdateRefreshTokenAsync(tokenEntity);
+
+            var newRefreshToken = _authService.GenerateRefreshToken();
+            await _refreshTokenRepository.SaveRefreshTokenAsync(user.UserId, newRefreshToken);
+
+            return StatusCode(StatusCodes.Status200OK, new
+            {
+                isSuccess = true,
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            });
         }
     }
 }
