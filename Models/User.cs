@@ -16,4 +16,5 @@ public partial class User
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
     public ICollection<Follower> Followers { get; set; } 
     public ICollection<Follower> FollowedBy { get; set; }
+    public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

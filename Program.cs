@@ -33,6 +33,8 @@ namespace APISocMed
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<IFollowerRepository, FollowerRepository>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddSingleton<SpotifyService>();
 
