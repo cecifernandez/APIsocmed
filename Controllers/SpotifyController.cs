@@ -1,6 +1,9 @@
 ﻿using APISocMed.DomainServices;
+using APISocMed.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using System.Security.Claims;
 
 namespace APISocMed.Controllers
 {
@@ -9,10 +12,13 @@ namespace APISocMed.Controllers
     public class SpotifyController : ControllerBase
     {
         private readonly SpotifyService _spotifyService;
+        private readonly AuthService _authService;
 
-        public SpotifyController(SpotifyService spotifyService)
+
+        public SpotifyController(SpotifyService spotifyService, AuthService authService)
         {
             _spotifyService = spotifyService;
+            _authService = authService;
         }
 
         [HttpGet("authorize")]

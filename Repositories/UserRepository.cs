@@ -64,5 +64,16 @@ namespace APISocMed.Repositories
             return existingUser;
         }
 
+        public async Task SaveSpotifyTokensAsync(int userId, string spotifyId, string refreshToken)
+        {
+            var user = await GetUserByIdAsync(userId);
+            if (user != null)
+            {
+                user.SpotifyId = spotifyId;
+                user.SpotifyRefreshToken = refreshToken;
+                await _socMedBdContext.SaveChangesAsync();
+            }
+        }
+
     }
 }

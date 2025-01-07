@@ -17,4 +17,7 @@ public partial class User
     public ICollection<Follower> Followers { get; set; } 
     public ICollection<Follower> FollowedBy { get; set; }
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+    public string? SpotifyId { get; set; }
+    public string? SpotifyRefreshToken { get; set; }
 }

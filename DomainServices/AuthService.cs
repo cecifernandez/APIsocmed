@@ -43,7 +43,8 @@ namespace APISocMed.DomainServices
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.UserEmail)
+                new Claim(ClaimTypes.Email, user.UserEmail),
+                new Claim("id", user.UserId.ToString())
             };
 
             //user credentials
@@ -66,6 +67,42 @@ namespace APISocMed.DomainServices
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
+        }
+
+        public int? ValidateJwt(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:key"]!);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+            };
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
+
+                if (validatedToken is JwtSecurityToken jwtToken &&
+                    jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+                    return int.TryParse(userIdClaim, out var userId) ? userId : null;
+                }
+                else
+                {
+                    throw new SecurityTokenException("Invalid token");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+                return null;
+            }
         }
     }
 }

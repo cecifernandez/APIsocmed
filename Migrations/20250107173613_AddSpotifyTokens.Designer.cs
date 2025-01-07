@@ -4,6 +4,7 @@ using APISocMed.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APISocMed.Migrations
 {
     [DbContext(typeof(SocMedBdContext))]
-    partial class SocMedBdContextModelSnapshot : ModelSnapshot
+    [Migration("20250107173613_AddSpotifyTokens")]
+    partial class AddSpotifyTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,8 +118,8 @@ namespace APISocMed.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("password_hash");
 
-                    b.Property<string>("SpotifyId")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("SpotifyId")
+                        .HasColumnType("int");
 
                     b.Property<string>("SpotifyRefreshToken")
                         .HasColumnType("nvarchar(max)");

@@ -10,5 +10,7 @@ namespace APISocMed.Interfaces
         Task<User?> GetUserByIdAsync(int id);
         Task<User?> GetUserByUserNameAsync(string name);
         Task<User?> UpdateUserAsync(int id, UserDTO user);
+
+        Task SaveSpotifyTokensAsync(int userId, string spotifyId, string refreshToken);
     }
 }
