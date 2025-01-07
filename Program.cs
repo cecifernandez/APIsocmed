@@ -36,7 +36,7 @@ namespace APISocMed
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddSingleton<SpotifyService>();
+            builder.Services.AddScoped<SpotifyService>();
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

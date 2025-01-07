@@ -1,15 +1,20 @@
-﻿using System.Net.Http.Headers;
+﻿using APISocMed.Interfaces;
+using APISocMed.Models;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace APISocMed.DomainServices
 {
     public class SpotifyService
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepository;
 
         //access appsettings.json
-        public SpotifyService(IConfiguration configuration)
+        public SpotifyService(IConfiguration configuration, IUserRepository userRepository)
         {
             _configuration = configuration;
+            _userRepository = userRepository;
         }
 
         public string GetAuthorizationUrl()
@@ -22,7 +27,7 @@ namespace APISocMed.DomainServices
             return $"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope={Uri.EscapeDataString(scopes)}";
         }
 
-        public async Task<string> ExchangeCodeForToken(string code)
+        public async Task<string> ExchangeCodeForToken(string code, int userId)
         {
             var clientId = _configuration["Spotify:clientId"]!;
             var clientSecret = _configuration["Spotify:clientSecret"]!;
@@ -41,6 +46,16 @@ namespace APISocMed.DomainServices
             var response = await client.PostAsync("https://accounts.spotify.com/api/token", content);
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
+
+            var tokenData = JsonConvert.DeserializeObject<SpotifyTokenResponse>(responseBody);
+
+            if (tokenData != null)
+            {
+                string spotifyUserId = await GetSpotifyUserId(tokenData.AccessToken);
+
+                await _userRepository.SaveSpotifyTokensAsync(userId, spotifyUserId, tokenData.RefreshToken);
+            }
+
             return responseBody; 
         }
 
@@ -52,6 +67,18 @@ namespace APISocMed.DomainServices
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
             return responseBody;
+        }
+
+        private async Task<string> GetSpotifyUserId(string accessToken)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await client.GetAsync("https://api.spotify.com/v1/me");
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            var userData = JsonConvert.DeserializeObject<SpotifyUserResponse>(responseBody);
+            return userData!.Id;
         }
     }
 

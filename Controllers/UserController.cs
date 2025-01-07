@@ -3,10 +3,13 @@ using APISocMed.DomainServices;
 using APISocMed.Interfaces;
 using APISocMed.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 
 namespace APISocMed.Controllers
@@ -19,13 +22,15 @@ namespace APISocMed.Controllers
         private readonly IFollowerRepository _followerRepository;
         private readonly AuthService _authService;
         private readonly IMapper _mapper;
+        private readonly SpotifyService _spotifyService;
 
-        public UserController(IUserRepository accesRepository, AuthService authService, IMapper mapper, IFollowerRepository followerRepository)
+        public UserController(IUserRepository accesRepository, AuthService authService, IMapper mapper, IFollowerRepository followerRepository, SpotifyService spotifyService)
         {
             _userRepository = accesRepository;
             _authService = authService;
             _mapper = mapper;
             _followerRepository = followerRepository;
+            _spotifyService = spotifyService;
         }
 
         [HttpGet]
@@ -68,6 +73,21 @@ namespace APISocMed.Controllers
 
             await _followerRepository.UnfollowUsersAsync(currentUser, followingId);
             return Ok("User unfollowed successfully.");
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Route("connectSpotify")]
+        public async Task<IActionResult> ConnectSpotify([FromQuery] string code)
+        {
+            var currentUser = GetCurrentUserId();
+
+
+            var accessToken = await _spotifyService.ExchangeCodeForToken(code, currentUser);
+
+            var tokenResponse = JsonConvert.DeserializeObject<SpotifyTokenResponse>(accessToken);
+
+            return Ok(tokenResponse);
         }
 
         [NonAction]
