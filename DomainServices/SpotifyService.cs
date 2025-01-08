@@ -27,7 +27,7 @@ namespace APISocMed.DomainServices
             return $"https://accounts.spotify.com/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope={Uri.EscapeDataString(scopes)}";
         }
 
-        public async Task<string> ExchangeCodeForToken(string code, int userId)
+        public async Task<SpotifyTokenResponse> ExchangeCodeForToken(string code)
         {
             var clientId = _configuration["Spotify:clientId"]!;
             var clientSecret = _configuration["Spotify:clientSecret"]!;
@@ -41,22 +41,24 @@ namespace APISocMed.DomainServices
             new KeyValuePair<string, string>("redirect_uri", redirectUri),
             new KeyValuePair<string, string>("client_id", clientId),
             new KeyValuePair<string, string>("client_secret", clientSecret),
-        });
+            });
 
             var response = await client.PostAsync("https://accounts.spotify.com/api/token", content);
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 
-            var tokenData = JsonConvert.DeserializeObject<SpotifyTokenResponse>(responseBody);
+            var tokenResponse = JsonConvert.DeserializeObject<SpotifyTokenResponse>(responseBody);
 
-            if (tokenData != null)
-            {
-                string spotifyUserId = await GetSpotifyUserId(tokenData.AccessToken);
+            //var tokenData = JsonConvert.DeserializeObject<SpotifyTokenResponse>(responseBody);
 
-                await _userRepository.SaveSpotifyTokensAsync(userId, spotifyUserId, tokenData.RefreshToken);
-            }
+            //if (tokenData != null)
+            //{
+            //    string spotifyUserId = await GetSpotifyUserId(tokenData.AccessToken);
 
-            return responseBody; 
+            //    await _userRepository.SaveSpotifyTokensAsync(userId, spotifyUserId, tokenData.RefreshToken);
+            //}
+
+            return tokenResponse; 
         }
 
         public async Task<string> GetUserProfile(string accessToken)
@@ -69,7 +71,7 @@ namespace APISocMed.DomainServices
             return responseBody;
         }
 
-        private async Task<string> GetSpotifyUserId(string accessToken)
+        public async Task<string> GetSpotifyUserId(string accessToken)
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

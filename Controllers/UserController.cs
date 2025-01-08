@@ -80,14 +80,23 @@ namespace APISocMed.Controllers
         [Route("connectSpotify")]
         public async Task<IActionResult> ConnectSpotify([FromQuery] string code)
         {
-            var currentUser = GetCurrentUserId();
+            try
+            {
+                var currentUser = GetCurrentUserId();
 
 
-            var accessToken = await _spotifyService.ExchangeCodeForToken(code, currentUser);
+                var accessToken = await _spotifyService.ExchangeCodeForToken(code);
 
-            var tokenResponse = JsonConvert.DeserializeObject<SpotifyTokenResponse>(accessToken);
+                var userProfile = await _spotifyService.GetSpotifyUserId(accessToken.AccessToken);
 
-            return Ok(tokenResponse);
+                await _userRepository.SaveSpotifyTokensAsync(currentUser, userProfile, accessToken.RefreshToken);
+
+                return Ok(new { message = "Spotify account connected successfully", accessToken });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
 
         [NonAction]
