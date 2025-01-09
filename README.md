@@ -2,13 +2,15 @@
 
 ## Overview
 
-This is a C# API for a social media currently in development. This API is built using JWT for authentication, Entity Framework as ORM and SQL Server as a database.
+This is a C# API for a social media currently under development. This API is built using JWT for authentication, Entity Framework as ORM and SQL Server as a database.
 
 ### Features
 
 - Log in.
 - Register.
 - Create posts.
+- Follow and unfollow users.
+- Connect account with Spotify-
 
 ### Technologies Used
 
@@ -25,4 +27,10 @@ This is a C# API for a social media currently in development. This API is built 
 | GET         | `api/Access/Login`  | Log in user. |
 | GET         | `api/Posts/Posts`             | Retrieves a list of all posts.          |
 | POST         | `api/Posts/CreatePost`             | Creates a new post.          |
+| GET         | `api/User/GetUserById`             | Get user info by Id.         |
+| GET         | `api/User/GetUserByUsername`             | Get user info by Username.          |
+| POST         | `api/User/FollowUser`             | Follow user.          |
+| POST         | `api/User/UnfollowUser`             | Unfollow user.          |
+| GET         | `api/User/ConnectSpotify`             | Connect account to Spotify.          |
+
 
