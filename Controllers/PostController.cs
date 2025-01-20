@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APISocMed.DomainServices;
+using APISocMed.Services;
 using APISocMed.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,7 +41,7 @@ namespace APISocMed.Controllers
             var userIdClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-                return Unauthorized(new { message = "Usuario no autenticado." });
+                return Unauthorized(new { message = "User not authenticated." });
             }
 
             int userId = int.Parse(userIdClaim.Value);
@@ -52,6 +52,36 @@ namespace APISocMed.Controllers
                 return Ok(new { message, createdPost });
 
             return BadRequest(new { error = "Post not created" });
+        }
+
+        [HttpGet]
+        [Route("Feed")]
+        public async Task<ActionResult> GetFeed()
+        {
+            var userId = GetCurrentUserId();
+            var feed = await _postRepository.GetPostsFromFollowedUsers(userId);
+            return Ok( new { message = "Feed", feed});
+        }
+
+        [HttpDelete("{postId}")]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            int userId = GetCurrentUserId();
+            await _postRepository.DeletePostAsync(postId, userId);
+
+            return Ok();
+        }
+
+        [NonAction]
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedAccessException("User ID not found in claims.");
+            }
+
+            return userId;
         }
     }
 }

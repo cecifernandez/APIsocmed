@@ -3,7 +3,7 @@ using APISocMed.Models;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 
-namespace APISocMed.DomainServices
+namespace APISocMed.Services
 {
     public class SpotifyService
     {

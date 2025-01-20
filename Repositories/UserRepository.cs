@@ -1,5 +1,5 @@
 ﻿using APISocMed.Data;
-using APISocMed.DomainServices;
+using APISocMed.Services;
 using APISocMed.Models.DTOs;
 using APISocMed.Models;
 using Microsoft.AspNetCore.Mvc;
