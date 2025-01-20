@@ -10,7 +10,9 @@ This is a C# API for a social media currently under development. This API is bui
 - Register.
 - Create posts.
 - Follow and unfollow users.
-- Connect account with Spotify-
+- Connect account with Spotify.
+- Update user info.
+- Delete posts.
 
 ### Technologies Used
 
