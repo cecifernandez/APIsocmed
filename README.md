@@ -37,4 +37,8 @@ This is a C# API for a social media currently under development. This API is bui
 | GET         | `api/User/ConnectSpotify`             | Connect account to Spotify.          |
 | PUT         | `api/User/{id}`             | Updates user info.          |
 
+## Further development
 
+- Implement likes and comments
+- Improve exception handling and clener code
+- Implement posting images
