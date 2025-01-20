@@ -27,10 +27,12 @@ This is a C# API for a social media currently under development. This API is bui
 | GET         | `api/Access/Login`  | Log in user. |
 | GET         | `api/Posts/Posts`             | Retrieves a list of all posts.          |
 | POST         | `api/Posts/CreatePost`             | Creates a new post.          |
+| DELETE         | `api/Posts/{postId}`             | Deletes post.          |
 | GET         | `api/User/GetUserById`             | Get user info by Id.         |
 | GET         | `api/User/GetUserByUsername`             | Get user info by Username.          |
 | POST         | `api/User/FollowUser`             | Follow user.          |
 | POST         | `api/User/UnfollowUser`             | Unfollow user.          |
 | GET         | `api/User/ConnectSpotify`             | Connect account to Spotify.          |
+| PUT         | `api/User/{id}`             | Updates user info.          |
 
 
