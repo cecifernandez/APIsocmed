@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using APISocMed.DomainServices;
+using APISocMed.Services;
 using APISocMed.Data;
 using APISocMed.Interfaces;
 using APISocMed.Repositories;
 using Microsoft.EntityFrameworkCore.Design;
+using System.Text.Json.Serialization;
 
 
 namespace APISocMed
@@ -19,7 +20,10 @@ namespace APISocMed
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            //builder.Services.AddControllers();
+
+            builder.Services.AddControllers().AddJsonOptions(x =>
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

@@ -9,5 +9,13 @@ namespace APISocMed.Interfaces
 
         Task<List<Post>> GetAllPosts();
 
+        Task<List<Post>> GetPostsByUserIdAsync(int userId);
+
+        Task<List<Post>> GetPostsFromFollowedUsers(int userId);
+
+        Task<Post?> GetPostByIdAsync(int id);
+
+        Task<(bool isSuccess, string message)> DeletePostAsync(int postId, int userId);
+
     }
 }

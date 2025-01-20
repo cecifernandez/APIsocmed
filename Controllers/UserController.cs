@@ -1,5 +1,5 @@
 ﻿using APISocMed.Data;
-using APISocMed.DomainServices;
+using APISocMed.Services;
 using APISocMed.Interfaces;
 using APISocMed.Models;
 using AutoMapper;

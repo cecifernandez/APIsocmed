@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using APISocMed.Models;
 
-namespace APISocMed.DomainServices
+namespace APISocMed.Services
 {
     public class AuthService
     {

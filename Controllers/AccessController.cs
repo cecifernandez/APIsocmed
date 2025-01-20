@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using APISocMed.DomainServices;
+using APISocMed.Services;
 using APISocMed.Models;
 using APISocMed.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
