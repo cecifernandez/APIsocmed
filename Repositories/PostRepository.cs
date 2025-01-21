@@ -10,11 +10,9 @@ namespace APISocMed.Repositories
     public class PostRepository : IPostRepository
     {
         private readonly SocMedBdContext _socMedBdContext;
-        private readonly IMapper _mapper;
-        public PostRepository(SocMedBdContext socMedBdContext, IMapper mapper)
+        public PostRepository(SocMedBdContext socMedBdContext)
         {
             _socMedBdContext = socMedBdContext;
-            _mapper = mapper;
         }
 
         public async Task<(bool isSuccess, string message, Post? createdPost)> CreatePost(PostDTO postDto, int userId)

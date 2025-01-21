@@ -6,7 +6,6 @@ using APISocMed.Services;
 using APISocMed.Data;
 using APISocMed.Interfaces;
 using APISocMed.Repositories;
-using Microsoft.EntityFrameworkCore.Design;
 using System.Text.Json.Serialization;
 
 
@@ -39,8 +38,11 @@ namespace APISocMed
             builder.Services.AddScoped<IFollowerRepository, FollowerRepository>();
             builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
-            builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddScoped<SpotifyService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddScoped<ISpotifyService, SpotifyService>();
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

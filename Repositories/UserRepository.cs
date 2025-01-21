@@ -12,12 +12,10 @@ namespace APISocMed.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly SocMedBdContext _socMedBdContext;
-        private readonly AuthService _authService;
         private readonly IMapper _mapper;
-        public UserRepository(SocMedBdContext socMedBdContext, AuthService authService, IMapper mapper)
+        public UserRepository(SocMedBdContext socMedBdContext, IMapper mapper)
         {
             _socMedBdContext = socMedBdContext;
-            _authService = authService;
             _mapper = mapper;
         }
 

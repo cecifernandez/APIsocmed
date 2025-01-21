@@ -5,16 +5,15 @@ using System.Net.Http.Headers;
 
 namespace APISocMed.Services
 {
-    public class SpotifyService
+    public class SpotifyService : ISpotifyService
     {
         private readonly IConfiguration _configuration;
-        private readonly IUserRepository _userRepository;
+
 
         //access appsettings.json
-        public SpotifyService(IConfiguration configuration, IUserRepository userRepository)
+        public SpotifyService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _userRepository = userRepository;
         }
 
         public string GetAuthorizationUrl()

@@ -18,31 +18,22 @@ namespace APISocMed.Controllers
     [ApiController]
     public class AccessController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        private readonly AuthService _authService;
-        private readonly IMapper _mapper;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IAuthService _authService;
 
 
-        public AccessController(IUserRepository accesRepository, AuthService authService, IMapper mapper, IRefreshTokenRepository refreshTokenRepository)
+        public AccessController(IAuthService authService)
         {
-            _userRepository = accesRepository;
             _authService = authService;
-            _mapper = mapper;
-            _refreshTokenRepository = refreshTokenRepository;
+
         }
 
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult>Register(UserDTO userDTO)
         {
-            var userModel = _mapper.Map<User>(userDTO);
-            userModel.PasswordHash = _authService.encryptSHA256(userDTO.password);
-
-            bool isSuccess = await _userRepository.RegisterAsync(userModel);
-
-            if (isSuccess)
-                return StatusCode(StatusCodes.Status200OK, new { isSuccess = true });
+            var result = await _authService.RegisterUserAsync(userDTO);
+            if (result)
+                return Ok(new { isSuccess = true });
             else
                 return StatusCode(StatusCodes.Status500InternalServerError, new { isSuccess = false });
         }
@@ -51,50 +42,31 @@ namespace APISocMed.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
-            var passwordHash = _authService.encryptSHA256(loginDTO.password);
-            var user = await _userRepository.AuthenticateUserAsync(loginDTO.email, passwordHash);
-
-            if (user == null)
-            {
-                return StatusCode(StatusCodes.Status200OK, new { isSuccess = false, token = "" });
-            }
-
-            var token = _authService.getJWT(user);
-            return StatusCode(StatusCodes.Status200OK, new { isSuccess = true, token });
+            var result = await _authService.LoginUserAsync(loginDTO);
+            if (result.IsSuccess)
+                return Ok(new { isSuccess = true, token = result.Token });
+            else
+                return Ok(new { isSuccess = false, token = "" });
         }
 
         [HttpPost]
         [Route("RefreshToken")]
         public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
         {
-            var tokenEntity = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
-
-            if (tokenEntity == null)
+            var result = await _authService.RefreshTokenAsync(refreshToken);
+            if (result.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { isSuccess = false, message = "Invalid or expired refresh token" });
+                return Ok(new
+                {
+                    isSuccess = true,
+                    accessToken = result.AccessToken,
+                    refreshToken = result.RefreshToken
+                });
             }
-
-            var user = await _userRepository.GetUserByIdAsync(tokenEntity.UserId);
-
-            if (user == null)
+            else
             {
-                return StatusCode(StatusCodes.Status401Unauthorized, new { isSuccess = false, message = "User not found" });
+                return Unauthorized(new { isSuccess = false, message = result.Message });
             }
-
-            var newAccessToken = _authService.getJWT(user);
-
-            tokenEntity.IsUsed = true;
-            await _refreshTokenRepository.UpdateRefreshTokenAsync(tokenEntity);
-
-            var newRefreshToken = _authService.GenerateRefreshToken();
-            await _refreshTokenRepository.SaveRefreshTokenAsync(user.UserId, newRefreshToken);
-
-            return StatusCode(StatusCodes.Status200OK, new
-            {
-                isSuccess = true,
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken
-            });
         }
     }
 }

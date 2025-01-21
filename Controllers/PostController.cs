@@ -18,19 +18,18 @@ namespace APISocMed.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
-        private readonly IPostRepository _postRepository;
-        private readonly AuthService _authService;
-        public PostController(IPostRepository postRepository, AuthService authService)
+        private readonly IPostService _postService;
+
+        public PostController(IPostService postService)
         {
-            _postRepository = postRepository;
-            _authService = authService;
+            _postService = postService;
         }
 
         [HttpGet]
         [Route("Posts")]
         public async Task<IActionResult> Posts()
         {
-            var posts = await _postRepository.GetAllPosts();
+            var posts = await _postService.GetAllPostsAsync();
             return Ok(posts);
         }
 
@@ -46,7 +45,7 @@ namespace APISocMed.Controllers
 
             int userId = int.Parse(userIdClaim.Value);
 
-            var (isSuccess, message, createdPost) = await _postRepository.CreatePost(postDto, userId);
+            var (isSuccess, message, createdPost) = await _postService.CreatePostAsync(postDto, userId);
 
             if (isSuccess)
                 return Ok(new { message, createdPost });
@@ -59,15 +58,15 @@ namespace APISocMed.Controllers
         public async Task<ActionResult> GetFeed()
         {
             var userId = GetCurrentUserId();
-            var feed = await _postRepository.GetPostsFromFollowedUsers(userId);
-            return Ok( new { message = "Feed", feed});
+            var feed = await _postService.GetFeedAsync(userId);
+            return Ok(new { message = "Feed", feed });
         }
 
         [HttpDelete("{postId}")]
         public async Task<IActionResult> DeletePost(int postId)
         {
             int userId = GetCurrentUserId();
-            await _postRepository.DeletePostAsync(postId, userId);
+            await _postService.DeletePostAsync(postId, userId);
 
             return Ok();
         }
