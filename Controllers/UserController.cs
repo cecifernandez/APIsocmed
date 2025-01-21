@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
+using APISocMed.Models.DTOs;
 
 namespace APISocMed.Controllers
 {
@@ -20,15 +21,11 @@ namespace APISocMed.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IFollowerRepository _followerRepository;
-        private readonly AuthService _authService;
-        private readonly IMapper _mapper;
         private readonly SpotifyService _spotifyService;
 
         public UserController(IUserRepository accesRepository, AuthService authService, IMapper mapper, IFollowerRepository followerRepository, SpotifyService spotifyService)
         {
             _userRepository = accesRepository;
-            _authService = authService;
-            _mapper = mapper;
             _followerRepository = followerRepository;
             _spotifyService = spotifyService;
         }
@@ -97,6 +94,25 @@ namespace APISocMed.Controllers
             {
                 return BadRequest($"Error: {ex.Message}");
             }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserDTO userDto)
+        {
+            if (userDto == null)
+                return BadRequest(new { message = "User data is required." });
+
+            var currentUser = GetCurrentUserId();
+
+            if (id != currentUser)
+                return BadRequest(new { message = "You can't update this user. " });
+
+            var updatedUser = await _userRepository.UpdateUserAsync(id, userDto);
+
+            if (updatedUser == null)
+                return NotFound(new { message = "User not found." });
+
+            return Ok(updatedUser);
         }
 
         [NonAction]

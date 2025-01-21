@@ -12,11 +12,9 @@ namespace APISocMed.Repositories
     public class RefreshTokenRepository : IRefreshTokenRepository
     {
         private readonly SocMedBdContext _socMedBdContext;
-        private readonly AuthService _authService;
-        public RefreshTokenRepository(SocMedBdContext socMedBdContext, AuthService authService)
+        public RefreshTokenRepository(SocMedBdContext socMedBdContext)
         {
             _socMedBdContext = socMedBdContext;
-            _authService = authService;
         }
 
         public async Task SaveRefreshTokenAsync(int userId, string refreshToken)

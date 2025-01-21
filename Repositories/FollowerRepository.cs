@@ -9,11 +9,10 @@ namespace APISocMed.Repositories
     public class FollowerRepository : IFollowerRepository
     {
         private readonly SocMedBdContext _socMedBdContext;
-        private readonly AuthService _authService;
-        public FollowerRepository(SocMedBdContext socMedBdContext, AuthService authService)
+
+        public FollowerRepository(SocMedBdContext socMedBdContext)
         {
             _socMedBdContext = socMedBdContext;
-            _authService = authService;
         }
         public async Task<Follower?> GetFollowerRelationshipAsync(int followerId, int followedId)
         {

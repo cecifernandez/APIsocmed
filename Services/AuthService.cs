@@ -4,17 +4,60 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using APISocMed.Models;
+using APISocMed.Interfaces;
+using AutoMapper;
+using APISocMed.Models.DTOs;
 
 namespace APISocMed.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+
         //access appsettings.json
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, IUserRepository userRepository, IMapper mapper, IRefreshTokenRepository refreshTokenRepository)
         {
             _configuration = configuration;
+            _userRepository = userRepository;
+            _mapper = mapper;
+            _refreshTokenRepository = refreshTokenRepository;
+        }
+
+        public async Task<bool> RegisterUserAsync(UserDTO userDTO)
+        {
+            var userModel = _mapper.Map<User>(userDTO);
+            userModel.PasswordHash = encryptSHA256(userDTO.password);
+            return await _userRepository.RegisterAsync(userModel);
+        }
+
+        public async Task<(bool IsSuccess, string Token)> LoginUserAsync(LoginDTO loginDTO)
+        {
+            var passwordHash = encryptSHA256(loginDTO.password);
+            var user = await _userRepository.AuthenticateUserAsync(loginDTO.email, passwordHash);
+            if (user == null) return (false, null);
+            var token = getJWT(user);
+            return (true, token);
+        }
+
+        public async Task<(bool IsSuccess, string Message, string AccessToken, string RefreshToken)> RefreshTokenAsync(string refreshToken)
+        {
+            var tokenEntity = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+            if (tokenEntity == null) return (false, "Invalid or expired refresh token", null, null);
+
+            var user = await _userRepository.GetUserByIdAsync(tokenEntity.UserId);
+            if (user == null) return (false, "User not found", null, null);
+
+            var newAccessToken = getJWT(user);
+            tokenEntity.IsUsed = true;
+            await _refreshTokenRepository.UpdateRefreshTokenAsync(tokenEntity);
+
+            var newRefreshToken = GenerateRefreshToken();
+            await _refreshTokenRepository.SaveRefreshTokenAsync(user.UserId, newRefreshToken);
+
+            return (true, null, newAccessToken, newRefreshToken);
         }
 
         //hash password
